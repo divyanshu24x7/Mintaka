@@ -1,1 +1,1 @@
-"# mintaka" 
+# Mintaka
