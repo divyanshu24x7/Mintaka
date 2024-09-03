@@ -2,45 +2,42 @@ import React, { useState, useEffect, useRef } from 'react';
 
 const ImageSlider = ({ imageUrls, interval = 3000 }) => {
   const [imageIndex, setImageIndex] = useState(0);
+  const [isTransitioning, setIsTransitioning] = useState(true);
   const sliderRef = useRef(null);
 
   const images = [...imageUrls, imageUrls[0]];
 
   useEffect(() => {
-    const handleTransitionEnd = () => {
+    const transitionInterval = setInterval(() => {
       if (imageIndex === images.length - 1) {
-        sliderRef.current.style.transition = 'none';
+        // Temporarily disable the transition for the blink effect
+        setIsTransitioning(false);
         setImageIndex(0);
-        sliderRef.current.getBoundingClientRect();
-        setTimeout(() => {
-          sliderRef.current.style.transition = 'transform 0.9s ease'; // Slightly faster transition
-        }, 50);
+      } else {
+        setImageIndex((prevIndex) => prevIndex + 1);
       }
-    };
+    }, interval);
 
-    sliderRef.current.addEventListener('transitionend', handleTransitionEnd);
-
-    const intervalId = setInterval(() => {
-      setImageIndex((prevIndex) => {
-        if (prevIndex === images.length - 1) {
-          return 0; // Reset immediately when reaching the duplicated image
-        } else {
-          return prevIndex + 1;
-        }
-      });
-    }, interval * (imageIndex === images.length - 1 ? 0.7 : 1)); // Reduce interval on reset
-
-    return () => {
-      sliderRef.current.removeEventListener('transitionend', handleTransitionEnd);
-      clearInterval(intervalId);
-    };
+    // Cleanup the interval on component unmount
+    return () => clearInterval(transitionInterval);
   }, [imageIndex, images.length, interval]);
+
+  useEffect(() => {
+    if (!isTransitioning) {
+      // Reset the transition and re-enable it after a short delay
+      const resetTransition = setTimeout(() => {
+        setIsTransitioning(true);
+      }, 50);
+
+      return () => clearTimeout(resetTransition);
+    }
+  }, [isTransitioning]);
 
   return (
     <div className='w-full h-full relative overflow-hidden'>
       <div
         ref={sliderRef}
-        className='w-full h-full flex transition-transform duration-1000'
+        className={`w-full h-full flex ${isTransitioning ? 'transition-transform duration-1000' : ''}`}
         style={{
           transform: `translateX(${-100 * imageIndex}%)`,
         }}
