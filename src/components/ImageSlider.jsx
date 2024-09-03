@@ -5,33 +5,29 @@ const ImageSlider = ({ imageUrls, interval = 3000 }) => {
   const [isTransitioning, setIsTransitioning] = useState(true);
   const sliderRef = useRef(null);
 
+  // Clone the first image and place it at the end
   const images = [...imageUrls, imageUrls[0]];
 
   useEffect(() => {
     const transitionInterval = setInterval(() => {
-      if (imageIndex === images.length - 1) {
-        // Temporarily disable the transition for the blink effect
-        setIsTransitioning(false);
-        setImageIndex(0);
-      } else {
-        setImageIndex((prevIndex) => prevIndex + 1);
-      }
+      setImageIndex((prevIndex) => prevIndex + 1);
     }, interval);
 
-    // Cleanup the interval on component unmount
     return () => clearInterval(transitionInterval);
-  }, [imageIndex, images.length, interval]);
+  }, [interval]);
 
   useEffect(() => {
-    if (!isTransitioning) {
-      // Reset the transition and re-enable it after a short delay
-      const resetTransition = setTimeout(() => {
-        setIsTransitioning(true);
-      }, 50);
+    if (imageIndex === images.length - 1) {
+      setTimeout(() => {
+        setIsTransitioning(false); // Disable transition for instant jump
+        setImageIndex(0); // Jump back to the first image
+      }, 1000); // Adjust this timing if necessary
 
-      return () => clearTimeout(resetTransition);
+      setTimeout(() => {
+        setIsTransitioning(true); // Re-enable the transition
+      }, 1050); // Just after the instant jump
     }
-  }, [isTransitioning]);
+  }, [imageIndex, images.length]);
 
   return (
     <div className='w-full h-full relative overflow-hidden'>
