@@ -2,6 +2,13 @@
 @tailwind components;
 @tailwind utilities;
 
+*, ::before,::after{
+    box-sizing: border-box;
+}
+body{
+    background-color: #161616;
+}
+
 .img-slider-img{
     object-fit: cover;
     width: 100%;
@@ -10,13 +17,23 @@
     flex-shrink: 0;
     flex-grow: 0;
     filter: grayscale(1);
-    /*opacity: .3;8*/
+    opacity: .3;
     transition-behavior: normal, normal;
     transition-duration: 0.3s, 0.3s;
     transition-timing-function: ease, ease;
     transition-delay: 0s, 0s;
-    transition-property: filter, opacity
+    transition-property: filter, opacity;
 }
 .img-slider-img:hover{
     filter: grayscale(0);
+}
+
+.dropdown-menu{
+    opacity:0;
+    transform: translateY(-10px);
+    transition: opacity 150ms ease-in-out,transform 150ms ease-in-out;
+}
+
+.dropdown-menu:hover{
+    opacity:1;
 }

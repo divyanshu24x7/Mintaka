@@ -1,9 +1,8 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 
 const ImageSlider = ({ imageUrls, interval = 3000 }) => {
   const [imageIndex, setImageIndex] = useState(0);
   const [isTransitioning, setIsTransitioning] = useState(true);
-  const sliderRef = useRef(null);
 
   // Clone the first image and place it at the end
   const images = [...imageUrls, imageUrls[0]];
@@ -30,9 +29,8 @@ const ImageSlider = ({ imageUrls, interval = 3000 }) => {
   }, [imageIndex, images.length]);
 
   return (
-    <div className='w-full h-full relative overflow-hidden'>
+    <div className='w-full max-w-[95%] h-full relative overflow-hidden mx-auto'>
       <div
-        ref={sliderRef}
         className={`w-full h-full flex ${isTransitioning ? 'transition-transform duration-1000' : ''}`}
         style={{
           transform: `translateX(${-100 * imageIndex}%)`,

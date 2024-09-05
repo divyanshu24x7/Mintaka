@@ -6,10 +6,19 @@ export default {
   ],
   theme: {
     extend: {
+      colors: {
+        mintakaGray: '#161616',
+      },
       fontFamily:{
         sans:['Roboto','sans-serif']
       },
     },
+    /*screens:{
+      sm: '480px',
+      md: '768',
+      lg: '976px',
+      xl: '1440px'
+    },*/
   },
   plugins: [],
 }
