@@ -8,6 +8,9 @@ export default {
     extend: {
       colors: {
         mintakaGray: '#161616',
+        menuGray: '#1b1b1b',
+        menuGray2: '#242424',
+        mintakaText: '#6c6967',
       },
       fontFamily:{
         sans:['Roboto','sans-serif']

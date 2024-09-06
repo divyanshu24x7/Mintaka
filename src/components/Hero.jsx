@@ -18,8 +18,8 @@ const Hero = () => {
         <div className="relative w-[60%] mx-auto">
           <input 
             type="text" 
-            className="w-full h-14 rounded-md pl-12 pr-4 py-2 shadow-md border border-gray-300 focus:ring focus:ring-blue-500 outline-none block"
-            placeholder="Search..." 
+            className="w-full md:h-14 rounded-md pl-12 pr-4 py-2 shadow-md border border-gray-300 focus:ring focus:ring-red-700 outline-none block"
+            placeholder="Search anime..." 
           />
           <FaSearch 
             className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500"
