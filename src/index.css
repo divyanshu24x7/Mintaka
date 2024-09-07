@@ -54,3 +54,7 @@ body{
 .underLineAni:hover:before{
     width: 100%;
 }
+
+::placeholder{
+    color: #1b1b1b;
+}

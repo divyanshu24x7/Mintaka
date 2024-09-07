@@ -19,7 +19,7 @@ const Navbar = () => {
         <div className="hidden md:flex space-x-6 ml-auto pr-10 md:order-2">
           <Link className="text-white" to="">Home</Link>
           <Link className="text-white" to="/About">About</Link>
-          <Link className="text-white" to="">Library</Link>
+          <Link className="text-white" to="/Library">Library</Link>
           <Link className="text-white" to="">UserLib</Link>
         </div>
         <Link to="" className="p-3 px-6 pt-2 text-white bg-red-800 baseline rounded-full hover:bg-red-700 order-3">
@@ -42,6 +42,7 @@ const Navbar = () => {
                 </div>
         </div>
       </div>
+      <hr className='mt-6 opacity-10'></hr>
     </nav>
   );
 };
