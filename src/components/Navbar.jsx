@@ -22,7 +22,7 @@ const Navbar = () => {
           <Link className="text-white" to="/Library">Library</Link>
           <Link className="text-white" to="">UserLib</Link>
         </div>
-        <Link to="" className="p-3 px-6 pt-2 text-white bg-red-800 baseline rounded-full hover:bg-red-700 order-3">
+        <Link to="/Login" className="p-3 px-6 pt-2 text-white bg-red-800 baseline rounded-full hover:bg-red-700 order-3">
           Sign In
         </Link>
         <div className="md:hidden order-1 relative">
