@@ -7,13 +7,14 @@ import Login from './pages/Login'
 import SignUp from './pages/SignUp'
 import Library from './pages/Library'
 import AnimeDetail from './pages/AnimeDetail'
+import Dashboard from './pages/Dashboard'
 const App = () => {
 
   return (
     <>
       <Navbar />
       <Routes>
-        <Route path='/' element={<Home/>}/>
+        <Route path='/' element={<home />}/>
         <Route path='/About' element={<About/>}/>
         <Route path='/Library' element={<Library/>}/>
         <Route path='/anime/:id' element={<AnimeDetail />} />
