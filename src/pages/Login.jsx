@@ -23,7 +23,8 @@ const Login = () => {
       if (response.ok) {
         // Login successful
         alert('Login successful!');
-        
+        localStorage.setItem('loggedIn',true)
+        localStorage.setItem('userEmail',email)
         // Navigate to a new page, e.g., dashboard or home
         navigate('/Library'); 
       } else {
