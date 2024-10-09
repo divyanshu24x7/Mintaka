@@ -25,10 +25,11 @@ const Login = () => {
         alert('Login successful!');
         localStorage.setItem('loggedIn',true)
         localStorage.setItem('userEmail',email)
-        // Reload the page
-      window.location.reload(); 
         // Navigate to a new page, e.g., dashboard or home
         navigate('/Library'); 
+        // Reload the page
+        window.location.reload(); 
+        
       } else {
         // Handle login failure (e.g., show error message)
         alert(data.message || 'Invalid email or password');
