@@ -8,6 +8,7 @@ import SignUp from './pages/SignUp'
 import Library from './pages/Library'
 import AnimeDetail from './pages/AnimeDetail'
 import Dashboard from './pages/Dashboard'
+import ShareableLibrary from './pages/ShareableLibrary'
 const App = () => {
 
   return (
@@ -20,6 +21,7 @@ const App = () => {
         <Route path='/anime/:id' element={<AnimeDetail />} />
         <Route path='/login' element={<Login />} />
         <Route path='/SignUp' element={<SignUp />} />
+        <Route path="/share/:userId" element={<ShareableLibrary />} />
       </Routes>
 
     </>

@@ -40,6 +40,41 @@ const authenticateToken = (req, res, next) => {
         next(); // Proceed to the next middleware/route handler
     });
 };
+
+app.get('/get-user-anime/:userId', async (req, res) => {
+  const { userId } = req.params;
+
+  try {
+    // Fetch user's saved anime from the database
+    const userAnime = await Anime.find({ userId }); // Adjust query according to your schema
+
+    if (!userAnime.length) {
+      return res.status(404).json({ message: 'User not found or no anime in the library' });
+    }
+
+    // Extract anime IDs or the needed data
+    const savedAnimeIds = userAnime.map(anime => anime.animeId); // Adjust based on your schema
+
+    res.json(savedAnimeIds); // Send back the anime IDs
+  } catch (error) {
+    console.error('Error fetching user anime:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+});
+
+app.get('/get-user-anime', authenticateToken, async (req, res) => {
+  try {
+    const userId = req.user.userId; // Extract user ID from the token
+    const userAnimeList = await Anime.find({ userId }); // Get user's anime list
+
+    // Extract the anime IDs from the retrieved documents
+    const animeIds = userAnimeList.map(anime => anime.animeId);
+    res.json(animeIds); // Return the anime IDs
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
 app.post('/add-general-anime',authenticateToken,async(req,res)=>{
   const{animeId,name,genre,rating} = req.body
   try{
@@ -142,8 +177,8 @@ app.post('/login', async (req, res) => {
 
     // Optionally, create a JWT token
     const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
-
-    res.status(200).json({ message: 'Login successful', token });
+    const userId = user._id
+    res.status(200).json({ message: 'Login successful', token,userId });
   } catch (error) {
     console.error(error);
     return res.status(500).json({ message: 'Internal server error' });

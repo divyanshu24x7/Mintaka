@@ -24,6 +24,7 @@ const Login = () => {
         // Login successful
         alert('Login successful!');
         localStorage.setItem('token',data.token)
+        localStorage.setItem('userId',data.userId)
         // Navigate to a new page, e.g., dashboard or home
         navigate('/Library'); 
         // Reload the page
