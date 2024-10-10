@@ -3,6 +3,7 @@ import cors from 'cors';
 import bcrypt from 'bcrypt';
 import User from './models/User.js';
 import Anime from './models/Anime.js';
+import General from './models/General.js';
 import mongoose from 'mongoose';
 import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
@@ -39,6 +40,27 @@ const authenticateToken = (req, res, next) => {
         next(); // Proceed to the next middleware/route handler
     });
 };
+app.post('/add-general-anime',authenticateToken,async(req,res)=>{
+  const{animeId,name,genre,rating} = req.body
+  try{
+    const existingAnime = await General.findOne({animeId})
+    if(existingAnime){
+      return res.status(400).json({message:"anime already in general db"})
+    }
+    const newGeneralEntry = new General({
+      animeId,
+      name,
+      genre,
+      rating
+    })
+    await newGeneralEntry.save()
+    res.status(200).json({message:"anime added to general db"})
+  }catch(error){
+    console.error("error on server side",error)
+    res.status(500).json({message:"server error"})
+  }
+})
+
 app.post('/add-anime',authenticateToken,async(req,res)=>{
   const {animeId,rating} = req.body
   try{

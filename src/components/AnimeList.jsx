@@ -5,40 +5,59 @@ import { FaStar } from 'react-icons/fa';
 const AnimeList = ({ animeList }) => {
     const [rating, setRating] = useState({}); // Store rating for each anime
 
-    const handleAddToList = async (animeId) => {
-        const token = localStorage.getItem('token'); // Get user token from local storage
-
+    const adder = async (anime) => {
+        const token = localStorage.getItem('token');
         if (!token) {
-            alert('Please log in to add anime to your list.');
+            alert('Please sign in to add anime to your list.');
             return;
         }
 
         try {
-            const response = await fetch('http://localhost:5000/add-anime', {
+            // Add to general list
+            const generalResponse = await fetch('http://localhost:5000/add-general-anime', {
+                method: 'POST', // Corrected method string
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`, // Attach token to the request
+                },
+                body: JSON.stringify({
+                    animeId: anime.mal_id,
+                    name: anime.title,
+                    genre: anime.genres, // Adjusted based on your data structure
+                    rating: anime.score || 0,
+                }),
+            });
+
+            if (!generalResponse.ok) {
+                throw new Error('Failed to add anime to general db');
+            }
+
+            // Add to user-specific list
+            const userResponse = await fetch('http://localhost:5000/add-anime', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}` // Attach token to the request
+                    'Authorization': `Bearer ${token}`, // Attach token to the request
                 },
                 body: JSON.stringify({
-                    animeId: animeId,
-                    rating: rating[animeId] || 0 // Default to 0 if no rating is selected
-                })
+                    animeId: anime.mal_id,
+                    rating: rating[anime.mal_id] || 0, // Default to 0 if no rating is selected
+                }),
             });
 
-            if (response.ok) {
+            if (userResponse.ok) {
                 alert('Anime added to your list!');
             } else {
                 alert('Failed to add anime. Please try again.');
             }
         } catch (error) {
-            console.error('Error adding anime to list:', error);
-            alert('An error occurred. Please try again.');
+            console.error('Error adding anime:', error);
+            alert('An error occurred while adding anime. Please try again.');
         }
     };
 
     const handleRatingChange = (animeId, value) => {
-        setRating({ ...rating, [animeId]: value }); // Update rating for a specific anime
+        setRating((prevRatings) => ({ ...prevRatings, [animeId]: value })); // Update rating for a specific anime
     };
 
     return (
@@ -65,7 +84,7 @@ const AnimeList = ({ animeList }) => {
                         <div className='mt-2'>
                             <button 
                                 className='text-white bg-red-800 rounded p-2 w-full'
-                                onClick={() => handleAddToList(anime.mal_id)}
+                                onClick={() => adder(anime)} // Pass the entire anime object
                             >
                                 Add to my list
                             </button>
@@ -75,7 +94,7 @@ const AnimeList = ({ animeList }) => {
                                 <select
                                     className='w-full p-2 rounded bg-gray-800 text-white border border-gray-600 text-sm'
                                     value={rating[anime.mal_id] || '0'} // Set the selected rating value
-                                    onChange={(e) => handleRatingChange(anime.mal_id, e.target.value)}
+                                    onChange={(e) => handleRatingChange(anime.mal_id, e.target.value)} // Pass animeId and value
                                 >
                                     <option value="0">Select</option>
                                     <option value="10">(10) Masterpiece</option>
