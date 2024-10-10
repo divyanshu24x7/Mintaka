@@ -23,8 +23,7 @@ const Login = () => {
       if (response.ok) {
         // Login successful
         alert('Login successful!');
-        localStorage.setItem('loggedIn',true)
-        localStorage.setItem('userEmail',email)
+        localStorage.setItem('token',data.token)
         // Navigate to a new page, e.g., dashboard or home
         navigate('/Library'); 
         // Reload the page

@@ -11,8 +11,8 @@ const Navbar = () => {
 
   useEffect(() => {
     // Check if the user is logged in by checking localStorage or any auth token
-    const loggedInStatus = localStorage.getItem('loggedIn');
-    if (loggedInStatus) {
+    const token = localStorage.getItem('token');
+    if (token) {
       setIsLoggedIn(true);
     }
   }, []);
@@ -21,7 +21,8 @@ const Navbar = () => {
     setIsOpen(!isOpen); // Toggle the state between true/false
   };
   const handleSignOut = () => {
-    localStorage.removeItem('loggedIn'); // Clear login status
+
+    localStorage.removeItem('token'); // Clear login status
     setIsLoggedIn(false); // Update state to reflect user is logged out
     navigate('/'); // Navigate to home or login page
   };

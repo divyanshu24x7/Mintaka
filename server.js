@@ -4,6 +4,9 @@ import bcrypt from 'bcrypt';
 import User from './models/User.js';
 import mongoose from 'mongoose';
 import jwt from 'jsonwebtoken';
+import dotenv from 'dotenv';
+
+dotenv.config()
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -23,6 +26,24 @@ mongoose
 // Middleware
 app.use(cors(corsOptions)); // Enable CORS to allow requests from your frontend
 app.use(express.json()); // Parse incoming JSON requests
+
+const authenticateToken = (req, res, next) => {
+    const token = req.headers['authorization'] && req.headers['authorization'].split(' ')[1];
+
+    if (!token) return res.sendStatus(401); // Unauthorized
+
+    jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
+        if (err) return res.sendStatus(403); // Forbidden
+        req.user = user; // Save the user information from the token
+        next(); // Proceed to the next middleware/route handler
+    });
+};
+
+// Example of protected route
+app.get('/protected-route', authenticateToken, (req, res) => {
+    res.json({ message: 'You are authenticated!', user: req.user });
+});
+
 
 // Sample API endpoint
 app.get('/api/message', (req, res) => {
@@ -75,7 +96,7 @@ app.post('/login', async (req, res) => {
     }
 
     // Optionally, create a JWT token
-    const token = jwt.sign({ userId: user._id }, 'your_jwt_secret', { expiresIn: '1h' });
+    const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
 
     res.status(200).json({ message: 'Login successful', token });
   } catch (error) {
