@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import bcrypt from 'bcrypt';
 import User from './models/User.js';
+import Anime from './models/Anime.js';
 import mongoose from 'mongoose';
 import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
@@ -38,6 +39,28 @@ const authenticateToken = (req, res, next) => {
         next(); // Proceed to the next middleware/route handler
     });
 };
+app.post('/add-anime',authenticateToken,async(req,res)=>{
+  const {animeId,rating} = req.body
+  try{
+    const userId = req.user.userId
+
+    const existingAnime = await Anime.findOne({userId,animeId})
+    if(existingAnime){
+      return res.status(400).json({message:'anime already in your list'})
+    }
+    const newAnimeEntry = new Anime({
+      userId,
+      animeId,
+      rating
+    })
+
+    await newAnimeEntry.save();
+    res.status(201).json({message:'anime added in your list'})
+  }catch(error){
+    console.error(error);
+    res.status(500).json({ message: 'Server error' });
+  }
+})
 
 // Example of protected route
 app.get('/protected-route', authenticateToken, (req, res) => {
