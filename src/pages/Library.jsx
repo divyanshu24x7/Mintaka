@@ -104,7 +104,7 @@ const Library = () => {
           animeList.map(anime => (
             <div key={anime.data.mal_id}
               className='w-40 h-80 p-4 text-center relative bg-transparent transition-transform duration-300 ease-in-out transform hover:scale-105 hover:shadow-lg'>
-              <Link key={anime.data.mal_id} to={`/anime/${anime.mal_id}`} className='flex flex-col justify-between h-[70%]'>
+              <Link key={anime.data.mal_id} to={`/anime/${anime.data.mal_id}`} className='flex flex-col justify-between h-[70%]'>
                 <img
                   className='w-full h-[80%] object-cover transition-opacity duration-300 ease-in-out hover:opacity-90'
                   src={anime.data.images.jpg.large_image_url}
