@@ -13,6 +13,20 @@ const AnimeList = ({ animeList }) => {
         }
 
         try {
+
+            // Add to user-specific list
+            const userResponse = await fetch('http://localhost:5000/add-anime', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`, // Attach token to the request
+                },
+                body: JSON.stringify({
+                    animeId: anime.mal_id,
+                    rating: rating[anime.mal_id] || 0, // Default to 0 if no rating is selected
+                }),
+            });
+
             // Add to general list
             const generalResponse = await fetch('http://localhost:5000/add-general-anime', {
                 method: 'POST', // Corrected method string
@@ -31,19 +45,6 @@ const AnimeList = ({ animeList }) => {
             if (!generalResponse.ok) {
                 throw new Error('Failed to add anime to general db');
             }
-
-            // Add to user-specific list
-            const userResponse = await fetch('http://localhost:5000/add-anime', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`, // Attach token to the request
-                },
-                body: JSON.stringify({
-                    animeId: anime.mal_id,
-                    rating: rating[anime.mal_id] || 0, // Default to 0 if no rating is selected
-                }),
-            });
 
             if (userResponse.ok) {
                 alert('Anime added to your list!');
