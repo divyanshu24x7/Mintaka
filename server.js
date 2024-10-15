@@ -64,17 +64,24 @@ app.get('/get-user-anime/:userId', async (req, res) => {
 
 app.get('/get-user-anime', authenticateToken, async (req, res) => {
   try {
-    const userId = req.user.userId; // Extract user ID from the token
-    const userAnimeList = await Anime.find({ userId }); // Get user's anime list
+    // Fetch user's saved anime from the Anime collection (or similar)
+    const userAnime = await Anime.find({ userId: req.user.userId }); // Adjust query according to your schema
+    
+    // Get anime details from the 'generals' table for each anime in the user's library
+    const animeIds = userAnime.map(entry => entry.animeId);
+    const animeDetails = await General.find({ animeId: { $in: animeIds } });
 
-    // Extract the anime IDs from the retrieved documents
-    const animeIds = userAnimeList.map(anime => anime.animeId);
-    res.json(animeIds); // Return the anime IDs
+    if (!animeDetails.length) {
+      return res.status(404).json({ message: 'No anime found' });
+    }
+
+    res.json(animeDetails);
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: 'Server error' });
   }
 });
+
 app.post('/add-general-anime', authenticateToken, async (req, res) => {
   const animeData = req.body;  // Frontend sends the full anime data
 
