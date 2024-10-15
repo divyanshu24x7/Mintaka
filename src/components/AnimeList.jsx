@@ -29,18 +29,14 @@ const AnimeList = ({ animeList }) => {
 
             // Add to general list
             const generalResponse = await fetch('http://localhost:5000/add-general-anime', {
-                method: 'POST', // Corrected method string
+                method: 'POST', 
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`, // Attach token to the request
+                    'Authorization': `Bearer ${token}`, 
                 },
-                body: JSON.stringify({
-                    animeId: anime.mal_id,
-                    name: anime.title,
-                    genre: anime.genres, // Adjusted based on your data structure
-                    rating: anime.score || 0,
-                }),
+                body: JSON.stringify(anime), // Send the entire anime object
             });
+
 
             if (!generalResponse.ok) {
                 throw new Error('Failed to add anime to general db');

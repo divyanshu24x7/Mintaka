@@ -75,26 +75,67 @@ app.get('/get-user-anime', authenticateToken, async (req, res) => {
     res.status(500).json({ message: 'Server error' });
   }
 });
-app.post('/add-general-anime',authenticateToken,async(req,res)=>{
-  const{animeId,name,genre,rating} = req.body
-  try{
-    const existingAnime = await General.findOne({animeId})
-    if(existingAnime){
-      return res.status(400).json({message:"anime already in general db"})
-    }
-    const newGeneralEntry = new General({
-      animeId,
-      name,
-      genre,
-      rating
-    })
-    await newGeneralEntry.save()
-    res.status(200).json({message:"anime added to general db"})
-  }catch(error){
-    console.error("error on server side",error)
-    res.status(500).json({message:"server error"})
+app.post('/add-general-anime', authenticateToken, async (req, res) => {
+  const animeData = req.body;  // Frontend sends the full anime data
+
+  // console.log(animeData.mal_id);
+
+  try {
+      // Check if the anime is already in the general DB
+      const existingAnime = await General.findOne({ animeId: animeData.mal_id });
+      if (existingAnime) {
+          return res.status(400).json({ message: "Anime already in general DB" });
+      }
+
+      // Prepare the new entry with the complete data from frontend
+      const newGeneralEntry = new General({
+          animeId: animeData.mal_id,
+          url: animeData.url,
+          images: animeData.images,
+          trailer: animeData.trailer,
+          approved: animeData.approved,
+          titles: animeData.titles,
+          title: animeData.title,
+          title_english: animeData.title_english,
+          title_japanese: animeData.title_japanese,
+          title_synonyms: animeData.title_synonyms,
+          type: animeData.type,
+          source: animeData.source,
+          episodes: animeData.episodes,
+          status: animeData.status,
+          airing: animeData.airing,
+          aired: animeData.aired,
+          duration: animeData.duration,
+          rating: animeData.rating,
+          score: animeData.score,
+          scored_by: animeData.scored_by,
+          rank: animeData.rank,
+          popularity: animeData.popularity,
+          members: animeData.members,
+          favorites: animeData.favorites,
+          synopsis: animeData.synopsis,
+          background: animeData.background,
+          season: animeData.season,
+          year: animeData.year,
+          broadcast: animeData.broadcast,
+          producers: animeData.producers,
+          licensors: animeData.licensors,
+          studios: animeData.studios,
+          genres: animeData.genres,
+          explicit_genres: animeData.explicit_genres,
+          themes: animeData.themes,
+          demographics: animeData.demographics
+      });
+
+      // Save to the database
+      await newGeneralEntry.save();
+      res.status(200).json({ message: "Anime added to general DB" });
+  } catch (error) {
+      console.error("Error on server side", error);
+      res.status(500).json({ message: "Server error" });
   }
-})
+});
+
 
 app.post('/add-anime',authenticateToken,async(req,res)=>{
   const {animeId,rating} = req.body
