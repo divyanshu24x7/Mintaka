@@ -36,7 +36,7 @@ const Navbar = () => {
           <Link className="text-white" to="">Home</Link>
           <Link className="text-white" to="/About">About</Link>
           <Link className="text-white" to="/Library">Library</Link>
-          <Link className="text-white" to="">UserLib</Link>
+          <Link className="text-white" to="/UserLib">UserLib</Link>
         </div>
         {isLoggedIn ? (
           <button

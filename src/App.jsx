@@ -9,6 +9,7 @@ import Library from './pages/Library'
 import AnimeDetail from './pages/AnimeDetail'
 import Dashboard from './pages/Dashboard'
 import ShareableLibrary from './pages/ShareableLibrary'
+import UserLib from './pages/UserLib'
 const App = () => {
 
   return (
@@ -22,6 +23,7 @@ const App = () => {
         <Route path='/login' element={<Login />} />
         <Route path='/SignUp' element={<SignUp />} />
         <Route path="/share/:userId" element={<ShareableLibrary />} />
+        <Route path='/UserLib' element={<UserLib />} />
       </Routes>
 
     </>
