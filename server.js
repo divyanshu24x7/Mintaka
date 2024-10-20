@@ -98,7 +98,7 @@ app.post('/add-anime', authenticateToken, async (req, res) => {
   }
 });
 
-const { exec } = require('child_process');
+// const { exec } = require('child_process');
 
 app.post('/run-recommendation', authenticateToken, (req, res) => {
     const { userId } = req.user;
