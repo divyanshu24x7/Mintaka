@@ -5,6 +5,8 @@ const Library = () => {
   const [animeList, setAnimeList] = useState([]);
   const [error, setError] = useState('');
   const [shareableLink, setShareableLink] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');  // State for search input
+  const [filteredAnimeList, setFilteredAnimeList] = useState([]);  // State for filtered anime
 
   // Fetch the user's saved anime list from the backend
   useEffect(() => {
@@ -28,6 +30,7 @@ const Library = () => {
 
         const userAnimeList = await response.json(); // Fetch anime data directly from the server
         setAnimeList(userAnimeList);
+        setFilteredAnimeList(userAnimeList);  // Initially, filtered list is the same as the full list
       } catch (err) {
         setError(err.message);
       }
@@ -45,6 +48,18 @@ const Library = () => {
     }
   };
 
+  // Handle the search input change
+  const handleSearchChange = (e) => {
+    const query = e.target.value.toLowerCase();
+    setSearchQuery(query);
+
+    // Filter the anime list based on the search query
+    const filteredList = animeList.filter(anime =>
+      anime.title.toLowerCase().includes(query)
+    );
+    setFilteredAnimeList(filteredList);
+  };
+
   return (
     <div className='container mx-auto relative p-6'>
       <h1 className='text-white text-2xl mb-4'>User Library</h1>
@@ -52,6 +67,8 @@ const Library = () => {
       <div className='flex justify-between items-center mb-4'>
         <input
           type='text'
+          value={searchQuery}  // Bind input value to state
+          onChange={handleSearchChange}  // Call the handler on change
           placeholder='Search'
           className='w-[30%] p-3 border rounded-lg bg-gray-800 text-white placeholder-gray-400 focus:outline-none focus:border-red-700'
         />
@@ -69,8 +86,8 @@ const Library = () => {
       )}
 
       <div className='mt-4 flex flex-wrap gap-4 justify-center'>
-        {animeList.length > 0 ? (
-          animeList.map(anime => (
+        {filteredAnimeList.length > 0 ? (
+          filteredAnimeList.map(anime => (
             <div key={anime.animeId}
               className='w-40 h-80 p-4 text-center relative bg-transparent transition-transform duration-300 ease-in-out transform hover:scale-105 hover:shadow-lg'>
               <Link to={`/anime/${anime.animeId}`} className='flex flex-col justify-between h-[70%]'>
