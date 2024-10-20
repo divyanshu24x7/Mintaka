@@ -1,71 +1,78 @@
 import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 
-const ShareableLibrary = () => {
-  const { userId } = useParams(); // Assuming the URL will have /share/:userId
+const SharableLibrary = () => {
+  const { userId } = useParams(); // Get userId from URL params
   const [animeList, setAnimeList] = useState([]);
   const [error, setError] = useState('');
+  const [searchQuery, setSearchQuery] = useState(''); // State for search input
+  const [filteredAnimeList, setFilteredAnimeList] = useState([]); // State for filtered anime
 
-  const fetchAnimeDataInBatches = async (animeIds, batchSize = 5) => {
-    const totalBatches = Math.ceil(animeIds.length / batchSize);
-    const animeData = [];
-
-    for (let i = 0; i < totalBatches; i++) {
-      const batchIds = animeIds.slice(i * batchSize, (i + 1) * batchSize);
-      const batchData = await fetchAnimeData(batchIds);
-      animeData.push(...batchData); // Merge batch data into the main array
-      await new Promise(resolve => setTimeout(resolve, 1000)); // Wait for 1 second before the next batch
-    }
-
-    return animeData;
-  };
-
-  const fetchAnimeData = async (animeIds) => {
-    const animePromises = animeIds.map(async (id) => {
-      const response = await fetch(`https://api.jikan.moe/v4/anime/${id}`);
-      if (!response.ok) {
-        throw new Error(`Failed to fetch anime with ID: ${id}`);
-      }
-      return await response.json(); // Return the anime data
-    });
-
-    return Promise.all(animePromises); // Wait for all promises to resolve
-  };
-
+  // Fetch the user's anime list from the backend using userId
   useEffect(() => {
-    const fetchUserAnime = async () => {
+    const fetchSharedAnime = async () => {
       try {
-        const response = await fetch(`http://localhost:5000/get-user-anime/${userId}`);
-        if (!response.ok) {
-          throw new Error('Failed to fetch user anime');
-        }
-        const savedAnimeIds = await response.json(); // Assuming the response contains anime IDs
+        const response = await fetch(`http://localhost:5000/share/${userId}`);
 
-        // Fetch anime data in batches
-        const animeData = await fetchAnimeDataInBatches(savedAnimeIds);
-        setAnimeList(animeData);
+        if (!response.ok) {
+          throw new Error('Failed to fetch shared anime');
+        }
+
+        const sharedAnimeList = await response.json(); // Fetch anime data from MongoDB
+        setAnimeList(sharedAnimeList);
+        setFilteredAnimeList(sharedAnimeList); // Initially, filtered list is the same as the full list
       } catch (err) {
         setError(err.message);
       }
     };
 
-    fetchUserAnime();
+    fetchSharedAnime();
   }, [userId]);
+
+  // Handle the search input change
+  const handleSearchChange = (e) => {
+    const query = e.target.value.toLowerCase();
+    setSearchQuery(query);
+
+    // Filter the anime list based on the search query
+    const filteredList = animeList.filter(anime =>
+      anime.title.toLowerCase().includes(query)
+    );
+    setFilteredAnimeList(filteredList);
+  };
 
   return (
     <div className='container mx-auto relative p-6'>
-      <h1 className='text-white text-2xl mb-4'>User Library</h1>
+      <h1 className='text-white text-2xl mb-4'>Shared Anime Library</h1>
       {error && <p className='text-red-500'>{error}</p>}
+
+      <div className='flex justify-between items-center mb-4'>
+        <input
+          type='text'
+          value={searchQuery}  // Bind input value to state
+          onChange={handleSearchChange}  // Call the handler on change
+          placeholder='Search'
+          className='w-[30%] p-3 border rounded-lg bg-gray-800 text-white placeholder-gray-400 focus:outline-none focus:border-red-700'
+        />
+      </div>
+
       <div className='mt-4 flex flex-wrap gap-4 justify-center'>
-        {animeList.length > 0 ? (
-          animeList.map(anime => (
-            <div key={anime.data.mal_id} className='w-40 h-80 p-4 text-center relative bg-transparent transition-transform duration-300 ease-in-out transform hover:scale-105 hover:shadow-lg'>
-              <img
-                className='w-full h-[80%] object-cover transition-opacity duration-300 ease-in-out hover:opacity-90'
-                src={anime.data.images.jpg.large_image_url}
-                alt={anime.data.title}
-              />
-              <h1 className='text-white text-lg font-semibold'>{anime.data.title}</h1>
+        {filteredAnimeList.length > 0 ? (
+          filteredAnimeList.map(anime => (
+            <div key={anime.animeId}
+              className='w-40 h-80 p-4 text-center relative bg-transparent transition-transform duration-300 ease-in-out transform hover:scale-105 hover:shadow-lg'>
+              <Link to={`/anime/${anime.animeId}`} className='flex flex-col justify-between h-[70%]'>
+                <img
+                  className='w-full h-[80%] object-cover transition-opacity duration-300 ease-in-out hover:opacity-90'
+                  src={anime.images.jpg.large_image_url}  // Assuming image is stored in MongoDB
+                  alt={anime.title}
+                />
+                <div className='mt-2 flex flex-col justify-between'>
+                  <h1 className='text-white text-lg font-semibold'>
+                    {anime.title}
+                  </h1>
+                </div>
+              </Link>
             </div>
           ))
         ) : (
@@ -76,4 +83,4 @@ const ShareableLibrary = () => {
   );
 };
 
-export default ShareableLibrary;
+export default SharableLibrary;

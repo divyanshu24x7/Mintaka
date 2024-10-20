@@ -60,6 +60,35 @@ app.get('/get-user-anime', authenticateToken, async (req, res) => {
   }
 });
 
+// Endpoint to fetch a user's shared anime list without authentication
+app.get('/share/:userId', async (req, res) => {
+  const { userId } = req.params; // Extract userId from the URL
+
+  try {
+    // Find all anime entries for the given userId in the Anime collection
+    const userAnime = await Anime.find({ userId });
+    if (!userAnime.length) {
+      return res.status(404).json({ message: 'No anime found for this user' });
+    }
+
+    // Extract anime IDs from the userAnime list
+    const animeIds = userAnime.map(entry => entry.animeId);
+
+    // Fetch details for those anime from the General collection
+    const animeDetails = await General.find({ animeId: { $in: animeIds } });
+    if (!animeDetails.length) {
+      return res.status(404).json({ message: 'No anime details found' });
+    }
+
+    // Return the anime details to the client
+    res.json(animeDetails);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+
 // Endpoint to add anime to General collection
 app.post('/add-general-anime', authenticateToken, async (req, res) => {
   const animeData = req.body;
