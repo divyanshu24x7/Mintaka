@@ -167,6 +167,57 @@ app.post('/run-user-similarity', authenticateToken, (req, res) => {
     });
 });
 
+app.post('/run-scripts', authenticateToken, (req, res) => {
+  const { userId } = req.user;
+
+  const animeScript = `python3 scripts/anime_recommendation.py ${userId}`;
+  const userScript = `python3 scripts/user_recommendation.py ${userId}`;
+
+  // Execute both scripts in parallel
+  Promise.all([
+      new Promise((resolve, reject) => {
+          exec(animeScript, (error, stdout) => {
+              if (error) {
+                  reject(`Anime script error: ${error}`);
+              } else {
+                  try {
+                      resolve(JSON.parse(stdout));
+                  } catch (parseError) {
+                      reject(`Error parsing anime script output: ${parseError}`);
+                  }
+              }
+          });
+      }),
+      new Promise((resolve, reject) => {
+          exec(userScript, (error, stdout) => {
+              if (error) {
+                  reject(`User script error: ${error}`);
+              } else {
+                  try {
+                      resolve(JSON.parse(stdout));
+                  } catch (parseError) {
+                      reject(`Error parsing user script output: ${parseError}`);
+                  }
+              }
+          });
+      })
+  ])
+      .then(([animeRecommendations, userRecommendations]) => {
+          res.json({
+              message: 'Scripts executed successfully',
+              data: {
+                  animeRecommendations,
+                  userRecommendations
+              }
+          });
+      })
+      .catch(error => {
+          console.error(error);
+          res.status(500).json({ message: 'Error running scripts', error });
+      });
+});
+
+
 // Authentication routes
 app.post('/register', async (req, res) => {
   const { email, password } = req.body;
