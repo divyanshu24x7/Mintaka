@@ -4,6 +4,7 @@ from pymongo import MongoClient
 import pandas as pd
 from implicit.als import AlternatingLeastSquares
 from scipy.sparse import coo_matrix
+from bson.objectid import ObjectId
 
 # Ensure userId is passed
 if len(sys.argv) < 2:
@@ -12,16 +13,21 @@ if len(sys.argv) < 2:
 user_id = sys.argv[1]
 
 # Connect to MongoDB
-client = MongoClient('mongodb://localhost:27017/mintaka')
+client = MongoClient('mongodb://localhost:27017/')
 db = client['mintaka']
 
+# Load data
 ratings_data = pd.DataFrame(list(db.animes.find()))
 users_data = pd.DataFrame(list(db.users.find()))
 
-def build_user_similarity_model(ratings_data, users_data):
-    ratings_data = ratings_data[ratings_data['rating'] > 0]
-    ratings_data['userId'] = ratings_data['userId'].astype(str)
-    ratings_data['animeId'] = ratings_data['animeId'].astype(str)
+# Ensure consistent formats
+ratings_data['userId'] = ratings_data['userId'].astype(str)
+ratings_data['animeId'] = ratings_data['animeId'].astype(str)
+users_data['_id'] = users_data['_id'].astype(str)
+
+def build_user_similarity_model(ratings_data):
+    # Filter for valid ratings
+    ratings_data = ratings_data[ratings_data['rating'] > 0].copy()
 
     user_ids = ratings_data['userId'].unique()
     anime_ids = ratings_data['animeId'].unique()
@@ -31,18 +37,21 @@ def build_user_similarity_model(ratings_data, users_data):
 
     rows = ratings_data['userId'].map(user_map)
     cols = ratings_data['animeId'].map(anime_map)
-
     values = ratings_data['rating']
+
     ratings_matrix = coo_matrix((values, (rows, cols)), shape=(len(user_ids), len(anime_ids)))
 
+    # Train ALS Model
     model = AlternatingLeastSquares(factors=20, regularization=0.1)
-    model.fit(ratings_matrix.T)
+    model.fit(ratings_matrix.T.tocsr())  # Use CSR format for ALS model
 
     return model, user_map, user_ids
 
 def find_similar_users(user_id, model, user_map, user_ids, num_similar=10):
+    # Ensure user exists
     if user_id not in user_map:
         return [], []
+
     user_idx = user_map[user_id]
     similar_users, similarity_scores = model.similar_users(user_idx, num_similar + 1)
 
@@ -52,15 +61,21 @@ def find_similar_users(user_id, model, user_map, user_ids, num_similar=10):
     return similar_user_ids, similarity_scores
 
 def get_similar_users(user_id, num_similar=10):
-    model, user_map, user_ids = build_user_similarity_model(ratings_data, users_data)
+    model, user_map, user_ids = build_user_similarity_model(ratings_data)
     similar_users, similarity_scores = find_similar_users(user_id, model, user_map, user_ids, num_similar)
 
-    similar_user_emails = [
-        {"userId": sim_user, "email": users_data[users_data['_id'] == sim_user]['email'].values[0]}
-        for sim_user in similar_users
-    ]
+    similar_user_emails = []
+    for sim_user in similar_users:
+        # Lookup user email by matching user ID
+        user_entry = users_data[users_data['_id'] == sim_user]
+        if not user_entry.empty:
+            similar_user_emails.append({
+                "userId": sim_user,
+                "email": user_entry['email'].values[0]
+            })
 
     return similar_user_emails
 
+# Generate and display results
 similar_users = get_similar_users(user_id=user_id)
-print(json.dumps(similar_users))
+print(json.dumps(similar_users, indent=2))
