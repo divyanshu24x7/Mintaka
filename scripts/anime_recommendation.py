@@ -63,12 +63,10 @@ def hybrid_similarity(user_id, top_n=10):
 
     # Get top recommendations
     top_anime_ids = sorted(anime_scores, key=anime_scores.get, reverse=True)[:top_n]
-    recommendations = generals_df[generals_df['animeId'].isin(top_anime_ids)][['animeId', 'name', 'genre']]
-
-    return recommendations.to_dict(orient='records')
+    return list(map(int, top_anime_ids))  # Convert to Python int for JSON serialization
 
 # Generate recommendations
 recommendations = hybrid_similarity(user_id=user_id)
 
-# Return the results as JSON
+# Print only anime IDs as JSON
 print(json.dumps(recommendations, indent=2))

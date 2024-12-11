@@ -4,7 +4,6 @@ from pymongo import MongoClient
 import pandas as pd
 from implicit.als import AlternatingLeastSquares
 from scipy.sparse import coo_matrix
-from bson.objectid import ObjectId
 
 # Ensure userId is passed
 if len(sys.argv) < 2:
@@ -64,17 +63,15 @@ def get_similar_users(user_id, num_similar=10):
     model, user_map, user_ids = build_user_similarity_model(ratings_data)
     similar_users, similarity_scores = find_similar_users(user_id, model, user_map, user_ids, num_similar)
 
-    similar_user_emails = []
+    shareable_links = []
     for sim_user in similar_users:
-        # Lookup user email by matching user ID
-        user_entry = users_data[users_data['_id'] == sim_user]
-        if not user_entry.empty:
-            similar_user_emails.append({
-                "userId": sim_user,
-                "email": user_entry['email'].values[0]
-            })
+        # Generate shareable library link
+        shareable_links.append({
+            "userId": sim_user,
+            "shareLink": f"http://localhost:3000/share/{sim_user}"
+        })
 
-    return similar_user_emails
+    return shareable_links
 
 # Generate and display results
 similar_users = get_similar_users(user_id=user_id)

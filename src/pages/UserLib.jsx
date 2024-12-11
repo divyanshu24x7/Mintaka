@@ -19,8 +19,8 @@ const Library = () => {
                 const response = await fetch('http://localhost:5000/run-scripts', {
                     method: 'POST',
                     headers: {
-                        'Authorization': `Bearer ${token}`
-                    }
+                        'Authorization': `Bearer ${token}`,
+                    },
                 });
 
                 if (!response.ok) {
@@ -55,10 +55,9 @@ const Library = () => {
             <div>
                 <h2 className="text-white text-xl mb-2">Anime Recommendations</h2>
                 <div className="flex flex-wrap gap-4 justify-center">
-                    {animeRecommendations.map(anime => (
-                        <div key={anime.animeId} className="w-40 h-80 p-4 bg-transparent">
-                            <h1 className="text-white text-lg">{anime.name}</h1>
-                            <p className="text-gray-400">{anime.genre.join(', ')}</p>
+                    {animeRecommendations.map((anime, index) => (
+                        <div key={index} className="w-40 h-80 p-4 bg-transparent">
+                            <h1 className="text-white text-lg">{anime}</h1> {/* Display anime ID */}
                         </div>
                     ))}
                 </div>
@@ -67,9 +66,16 @@ const Library = () => {
             <div className="mt-8">
                 <h2 className="text-white text-xl mb-2">Similar Users</h2>
                 <ul>
-                    {userRecommendations.map(user => (
-                        <li key={user.userId} className="text-gray-400">
-                            {user.email}
+                    {userRecommendations.map((user, index) => (
+                        <li key={index} className="text-gray-400">
+                            <a
+                                href={user.shareLink}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-blue-400 hover:underline"
+                            >
+                                View User: {user.userId}
+                            </a>
                         </li>
                     ))}
                 </ul>
