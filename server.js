@@ -132,7 +132,7 @@ app.post('/add-anime', authenticateToken, async (req, res) => {
 app.post('/run-recommendation', authenticateToken, (req, res) => {
     const { userId } = req.user;
 
-    exec(`python3 scripts/anime_recommendation.py ${userId}`, (error, stdout, stderr) => {
+    exec(`python scripts/anime_recommendation.py ${userId}`, (error, stdout, stderr) => {
         if (error) {
             console.error(`Error executing script: ${error}`);
             return res.status(500).json({ message: 'Error running recommendation script' });
@@ -151,7 +151,7 @@ app.post('/run-recommendation', authenticateToken, (req, res) => {
 app.post('/run-user-similarity', authenticateToken, (req, res) => {
     const { userId } = req.user;
 
-    exec(`python3 scripts/user_recommendation.py ${userId}`, (error, stdout, stderr) => {
+    exec(`python scripts/user_recommendation.py ${userId}`, (error, stdout, stderr) => {
         if (error) {
             console.error(`Error executing script: ${error}`);
             return res.status(500).json({ message: 'Error running user similarity script' });
@@ -170,8 +170,8 @@ app.post('/run-user-similarity', authenticateToken, (req, res) => {
 app.post('/run-scripts', authenticateToken, (req, res) => {
   const { userId } = req.user;
 
-  const animeScript = `python3 scripts/anime_recommendation.py ${userId}`;
-  const userScript = `python3 scripts/user_recommendation.py ${userId}`;
+  const animeScript = `python scripts/anime_recommendation.py ${userId}`;
+  const userScript = `python scripts/user_recommendation.py ${userId}`;
 
   // Execute both scripts in parallel
   Promise.all([

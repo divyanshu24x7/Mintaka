@@ -54,8 +54,18 @@ def find_similar_users(user_id, model, user_map, user_ids, num_similar=10):
     user_idx = user_map[user_id]
     similar_users, similarity_scores = model.similar_users(user_idx, num_similar + 1)
 
-    similar_user_ids = [user_ids[user_idx] for user_idx in similar_users[1:]]
-    similarity_scores = similarity_scores[1:]
+    # Check the length of similar_users to prevent accessing out-of-bounds indices
+    similar_user_ids = []
+    for user_idx in similar_users[1:]:
+        # Ensure the index is within bounds
+        if user_idx < len(user_ids):
+            similar_user_ids.append(user_ids[user_idx])
+        else:
+            # Handle the case where an out-of-bounds index is encountered
+            #print(f"Warning: User index {user_idx} is out of bounds for user_ids.")
+            break  # Stop processing further users if an out-of-bounds index is encountered
+
+    similarity_scores = similarity_scores[1:]  # Skip the first score, as it's the score for the user itself
 
     return similar_user_ids, similarity_scores
 
@@ -63,6 +73,7 @@ def get_similar_users(user_id, num_similar=10):
     model, user_map, user_ids = build_user_similarity_model(ratings_data)
     similar_users, similarity_scores = find_similar_users(user_id, model, user_map, user_ids, num_similar)
 
+    # Generate shareable links for similar users
     shareable_links = []
     for sim_user in similar_users:
         # Generate shareable library link
