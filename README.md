@@ -2,6 +2,12 @@
 
 Mintaka is an anime recommendation and community platform designed to connect users based on their anime preferences. By analyzing user tastes and comparing anime lists, Mintaka helps users discover others with similar interests and find recommendations tailored to their unique preferences.
 
+## Demo Video
+
+[![Watch the demo](https://img.youtube.com/vi/LdOcRnBTa3s/0.jpg)](https://www.youtube.com/watch?v=LdOcRnBTa3s)
+
+Click the image above to watch the video.
+
 ## Features
 
 - **Search Anime**: Explore anime using the [Jikan API](https://jikan.moe/).
