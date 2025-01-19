@@ -108,4 +108,3 @@ This project is licensed under the GNU General Public License v2.0 License. See 
 ---
 
 Feel free to explore, contribute, and make Mintaka even better!
-```
