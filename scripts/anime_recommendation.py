@@ -1,10 +1,8 @@
 import sys
 import json
-from pymongo import MongoClient
-import pandas as pd
-import implicit
-import scipy.sparse as sparse
+import pickle
 from bson.objectid import ObjectId
+import os
 
 # Ensure userId is passed
 if len(sys.argv) < 2:
@@ -12,35 +10,27 @@ if len(sys.argv) < 2:
 
 user_id = sys.argv[1]
 
-# Connect to MongoDB
-client = MongoClient("mongodb://localhost:27017/")
-db = client["mintaka"]
+# Determine the directory where this script is located
+script_dir = os.path.dirname(os.path.abspath(__file__))
 
-# Fetch user-specific anime ratings ('animes' collection)
-animes_data = list(db.animes.find({}, {"userId": 1, "animeId": 1, "rating": 1}))
-animes_df = pd.DataFrame(animes_data)
+# Construct the full path to the model file
+model_file = os.path.join(script_dir, "anime_als_model.pkl")
+animes_file = os.path.join(script_dir, "anime_data.pkl")
 
-# Fetch general anime data including genres ('generals' collection)
-generals_data = list(db.generals.find({}, {"animeId": 1, "name": 1, "genre": 1, "rating": 1}))
-generals_df = pd.DataFrame(generals_data)
+# Load the pre-trained model and data
+with open(model_file, "rb") as f:
+    als_model = pickle.load(f)
 
-# Ensure consistent format for userId
-animes_df['userId'] = animes_df['userId'].astype(str)
-user_id = str(ObjectId(user_id))  # Convert input user_id to match MongoDB format
+with open(animes_file, "rb") as f:
+    animes_df = pickle.load(f)
+
+# Convert input user_id to MongoDB format
+user_id = str(ObjectId(user_id))
 
 # Debugging: Check if the user exists in the animes data
 if user_id not in animes_df['userId'].unique():
     print(f"Debug: User {user_id} has no anime ratings in the database.")
     raise ValueError(f"User {user_id} not found in the data.")
-
-# Create user-item matrix for implicit feedback
-animes_df['user_index'] = pd.factorize(animes_df['userId'])[0]
-animes_df['anime_index'] = pd.factorize(animes_df['animeId'])[0]
-user_item_matrix = sparse.csr_matrix((animes_df['rating'], (animes_df['user_index'], animes_df['anime_index'])))
-
-# Train ALS Model
-als_model = implicit.als.AlternatingLeastSquares(factors=50, regularization=0.1)
-als_model.fit(user_item_matrix)
 
 # Hybrid Similarity Function
 def hybrid_similarity(user_id, top_n=10):
