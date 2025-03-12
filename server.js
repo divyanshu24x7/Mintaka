@@ -7,6 +7,8 @@ import General from './models/General.js';
 import mongoose from 'mongoose';
 import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
+import cron from 'node-cron';  // Import node-cron for scheduling
+
 // Import child_process to run scripts
 import { exec } from 'child_process';
 
@@ -41,6 +43,35 @@ const authenticateToken = (req, res, next) => {
     next(); // Proceed to the next middleware/route handler
   });
 };
+
+// Training Script Runner Function
+function runTrainingScripts() {
+  console.log("Running training scripts...");
+  exec('python scripts/anime_recommendation_train.py', (error, stdout, stderr) => {
+    if (error) {
+      console.error(`Error running anime training script: ${error}`);
+    } else {
+      console.log(`Anime training script output: ${stdout}`);
+    }
+  });
+  exec('python scripts/user_recommendation_train.py', (error, stdout, stderr) => {
+    if (error) {
+      console.error(`Error running user training script: ${error}`);
+    } else {
+      console.log(`User training script output: ${stdout}`);
+    }
+  });
+}
+
+// Run training scripts immediately when the server starts
+runTrainingScripts();
+
+// Schedule training scripts to run at the start of every hour
+cron.schedule('0 * * * *', () => {
+  console.log("Scheduled training script run triggered at", new Date().toLocaleTimeString());
+  runTrainingScripts();
+});
+
 
 // Endpoint to fetch user's anime list
 app.get('/get-user-anime', authenticateToken, async (req, res) => {
