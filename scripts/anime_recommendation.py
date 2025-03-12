@@ -3,6 +3,7 @@ import json
 import pickle
 from bson.objectid import ObjectId
 import os
+# from datetime import datetime, timedelta
 
 # Ensure userId is passed
 if len(sys.argv) < 2:
@@ -28,9 +29,18 @@ with open(animes_file, "rb") as f:
 user_id = str(ObjectId(user_id))
 
 # Debugging: Check if the user exists in the animes data
+# if user_id not in animes_df['userId'].unique():
+#     print(f"Debug: User {user_id} has no anime ratings in the database.")
+#     raise ValueError(f"User {user_id} not found in the data.")
+
+# Check if the user exists in the data; if not, return a friendly message.
 if user_id not in animes_df['userId'].unique():
-    print(f"Debug: User {user_id} has no anime ratings in the database.")
-    raise ValueError(f"User {user_id} not found in the data.")
+    # next_update = (datetime.now() + timedelta(hours=1)).strftime("%I:%M %p")
+    message = {
+        "message": f"Your recommendations are being updated hourly. Please add some anime ratings and check back in an hour or so."
+    }
+    print(json.dumps(message, indent=2))
+    exit(0)
 
 # Hybrid Similarity Function
 def hybrid_similarity(user_id, top_n=10):
